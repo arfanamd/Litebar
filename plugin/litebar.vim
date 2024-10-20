@@ -36,26 +36,32 @@ hlset([{
 #                 print '-' if buffer is unmodifiable
 # '<%{&syn}>'  -> print what syntax is being used for the buffer
 # '%<%f%r%w '  -> print the relative path file, read-only?
-# '%='f%r%w '  -> padding
+# '%='         -> padding
 # '%l,%v'      -> print line and column info
 # '%-5P'       -> print buffer position info
 # '%{&enc}'    -> print encoding info
 # '%-5{&ff}'   -> print file format info
-# '%*'         -> end use of color profile 1
+# '%*'         -> end use of a color profile
 
-def LiteActiveBuf(): string
-	return '%1* %2.2n%-2M <%{&syn}>  %<%f%r%w %=%l,%v  %-5P%{&enc}  %-5{&ff}%*'
+def LiteActiveBuf()
+	setbufvar(bufnr(), '&statusline',  '%1* %2.2n%-2M <%{&syn}>  %<%f%r%w %=%l,%v  %-5P%{&enc}  %-5{&ff}%*')
 enddef
 
-def LiteInactiveBuf(): string
-	return '%2* %2.2n%-2M <%{&syn}>  %<%f%r%w %=%l,%v  %-5P%{&enc}  %-5{&ff}%*'
+def LiteInactiveBuf()
+	setbufvar(bufnr(), '&statusline',  '%2* %2.2n%-2M <%{&syn}>  %<%f%r%w %=%l,%v  %-5P%{&enc}  %-5{&ff}%*')
 enddef
+
+# BufNewFile  -> starting to edit a file that doesn't exist
+# BufAdd      -> after adding a buffer to the buffer list
+# BufEnter    -> after entering a buffer
+# BufLeave    -> before leaving to another buffer
+# BufWinEnter -> a buffer is displayed in a window
 
 augroup Litebar
 	autocmd!
-	autocmd BufNewFile * setlocal statusline=%!LiteActiveBuf()
-	autocmd BufEnter,WinEnter * setlocal statusline=%!LiteActiveBuf()
-	autocmd BufLeave,WinLeave * setlocal statusline=%!LiteInactiveBuf()
+	autocmd BufNewFile,BufAdd * call LiteActiveBuf()
+	autocmd BufEnter,BufWinEnter * call LiteActiveBuf()
+	autocmd BufLeave * call LiteInactiveBuf()
 augroup END
 
 # vim:ft=vim:sw=2:ts=2
